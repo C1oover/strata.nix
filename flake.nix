@@ -21,9 +21,14 @@
         config.allowUnfree = true;
       };
 
-      version = builtins.head (builtins.match
-        ".*project\\(strata VERSION ([0-9.]+).*"
-        (builtins.readFile (strata + "/CMakeLists.txt")));
+      version =
+        let
+          projectLine = builtins.head (builtins.filter
+            (l: builtins.match "project\\(strata VERSION.*" l != null)
+            (nixpkgs.lib.splitString "\n"
+              (builtins.readFile (strata + "/CMakeLists.txt"))));
+        in
+        builtins.head (builtins.match "project\\(strata VERSION ([0-9.]+).*" projectLine);
 
       ggmlPin = builtins.head (builtins.match "([0-9a-f]+).*"
         (builtins.readFile (strata + "/third_party/ggml/VERSION.txt")));
