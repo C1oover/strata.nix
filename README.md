@@ -61,7 +61,7 @@ that is normal. API: `http://127.0.0.1:8080/v1/chat/completions` (OpenAI) and
 | `package` | `strataPkgs.strata` | The strata-serve bundle (carries the engine). |
 | `family` | `swift` | `swift` (Swift 1.5: same accuracy, answers ~1.8x sooner), `qwen` (original) or `coder` (half the experts, code-focused, ~32 GB RAM). |
 | `model` | `IQ2_XS` | `Q2_0` / `IQ2_XS` / `IQ3_XXS` / `IQ3_S` (qwen only) / `IQ1_M` (coder only). |
-| `context` | `32768` | 8192–262144 tokens. |
+| `context` | `32768` | 8192-1048576 tokens. Past the trained 262144, `strata-prefetch` adds yarn rope scaling (experimental upstream; `extraEngineArgs` can override). |
 | `host` / `port` | `127.0.0.1` / `8080` | Listen address. |
 | `apiKeyFile` | `null` | Path to a file with the API key (systemd credential). Required when `host` is not loopback. |
 | `hfTokenFile` | `null` | Hugging Face token file, only for gated repos. |

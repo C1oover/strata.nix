@@ -28,9 +28,14 @@ in
     };
 
     context = lib.mkOption {
-      type = lib.types.enum [ 8192 32768 65536 131072 262144 ];
+      type = lib.types.enum [ 8192 32768 65536 131072 204800 262144 393216 524288 1048576 ];
       default = 32768;
-      description = "Context window in tokens. From 64K on, the KV cache streams from RAM.";
+      description = ''
+        Context window in tokens. From 64K on, the KV cache streams from RAM.
+        Past the model's trained 262144, strata-prefetch turns on yarn rope scaling
+        (factor = context / 262144, experimental upstream); pass `--rope-scaling`
+        through extraEngineArgs to override.
+      '';
     };
 
     host = lib.mkOption {
