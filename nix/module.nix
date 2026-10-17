@@ -10,10 +10,11 @@ in
     package = lib.mkPackageOption strataPkgs "strata" { };
 
     family = lib.mkOption {
-      type = lib.types.enum [ "qwen" "swift" "coder" ];
+      type = lib.types.enum [ "qwen" "swift" "abliterated" "coder" ];
       default = "swift";
       description = ''
         Which model: `swift` (Swift 1.5, answers ~1.8x sooner for the same accuracy),
+        `abliterated` (Swift 1.5 uncensored, SC117's re-quant; Q2_0/IQ2_XS/IQ3_XXS),
         `qwen` (the original Qwen3.8-Flash-Next) or `coder` (half the experts kept, code-focused).
       '';
     };

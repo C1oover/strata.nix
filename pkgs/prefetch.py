@@ -51,6 +51,13 @@ FAMILIES = {
         "name": "swift-1.5",
         "profile": "expert-profile.bin",
     },
+    "abliterated": {
+        "base": "https://huggingface.co/SC117/Swift-1.5-Qwen3.8-Flash-Next-GSQ-RCO-abliterated-GGUF/resolve/main/{q}/",
+        "file": "Swift-Qwen3.8-Flash-Next-GSQ-RCO-abliterated-{q}-0000{i}-of-00002.gguf",
+        "tag": "abliterated-",
+        "name": "swift-1.5-abliterated",
+        "profile": "expert-profile.bin",
+    },
     "coder": {
         "base": "https://huggingface.co/ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF/resolve/main/{q}/",
         "file": "Qwen3.8-Flash-Next-GSQ-RCO-{q}-0000{i}-of-00002.gguf",
@@ -210,7 +217,7 @@ def main() -> int:
     a = ap.parse_args()
 
     fam, quant = FAMILIES[a.family], QUANTS[a.model]
-    allowed = fam.get("families") or tuple(FAMILIES)
+    allowed = quant.get("families") or tuple(FAMILIES)
     if a.family not in allowed:
         fail(f"{a.model} is only published for: {', '.join(allowed)} (not {a.family})")
 
