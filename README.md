@@ -1,8 +1,8 @@
 # strata.nix
 
-Run [Strata](https://github.com/Niko1221/Strata) — the engine that serves
-**Qwen3.8-Flash-Next** (a 125B-parameter MoE, ~6B active) on a single NVIDIA GPU —
-as a native NixOS service, with an OpenAI- and Anthropic-compatible API on localhost.
+A NixOS service around [Strata](https://github.com/Niko1221/Strata), the engine
+that runs **Qwen3.8-Flash-Next** (125B MoE, ~6B active) on a single NVIDIA GPU
+and serves it over an OpenAI- and Anthropic-compatible API on localhost.
 
 ```
 ┌─────────────┐   OpenAI/Anthropic    ┌───────────────┐   stdin/stdout   ┌────────────────┐
@@ -44,13 +44,13 @@ as a native NixOS service, with an OpenAI- and Anthropic-compatible API on local
 
 The service:
 
-1. (first start) downloads the model shards from Hugging Face, builds the pack and
-   the MTP draft layer — resumable, so an interrupted start continues where it left off;
+1. (first start) downloads the model shards from Hugging Face and builds the pack and
+   the MTP draft layer. Interrupted? Start again, it picks up where it left off;
 2. writes `/var/lib/strata/config.json` (engine arguments, API key if any);
 3. starts `strata-serve` on `http://127.0.0.1:8080`.
 
-While the model loads (35-55 GB into RAM) the machine can be slow for 1-3 minutes:
-that is normal. API: `http://127.0.0.1:8080/v1/chat/completions` (OpenAI) and
+Loading pushes 35-55 GB into RAM and the machine can crawl for 1-3 minutes.
+That is normal. API: `http://127.0.0.1:8080/v1/chat/completions` (OpenAI) and
 `/v1/messages` (Anthropic). Chat in the browser: `http://127.0.0.1:8080/`.
 
 ## Options (`services.strata.*`)
@@ -61,14 +61,14 @@ that is normal. API: `http://127.0.0.1:8080/v1/chat/completions` (OpenAI) and
 | `package` | `strataPkgs.strata` | The strata-serve bundle (carries the engine). |
 | `family` | `swift` | `swift` (Swift 1.5: same accuracy, answers ~1.8x sooner), `qwen` (original) or `coder` (half the experts, code-focused, ~32 GB RAM). |
 | `model` | `IQ2_XS` | `Q2_0` / `IQ2_XS` / `IQ3_XXS` / `IQ3_S` (qwen only) / `IQ1_M` (coder only). |
-| `context` | `32768` | 8192-1048576 tokens. Past the trained 262144, `strata-prefetch` adds yarn rope scaling (experimental upstream; `extraEngineArgs` can override). |
+| `context` | `32768` | 8192-1048576 tokens. Past 262144 strata-prefetch adds yarn rope scaling (experimental upstream). |
 | `host` / `port` | `127.0.0.1` / `8080` | Listen address. |
 | `apiKeyFile` | `null` | Path to a file with the API key (systemd credential). Required when `host` is not loopback. |
 | `hfTokenFile` | `null` | Hugging Face token file, only for gated repos. |
 | `openFirewall` | `false` | Open the TCP port in the firewall. |
 | `gpus` | `[ ]` | CUDA device indices; several = layer split. Empty: the card with the most VRAM. |
 | `lowRam` | `null` | Map experts from disk instead of RAM copies (auto when RAM is short). |
-| `sampling` | `{ }` | Sampling defaults (temperature, top_p, top_k, …). |
+| `sampling` | `{ }` | Sampling defaults (temperature, top_p, top_k, ...). |
 | `mcpServers` | `{ }` | MCP servers for the web chat (Claude Desktop format; they run with the service's rights). |
 | `extraEngineArgs` | `[ ]` | Extra engine arguments, e.g. `[ "--kv" "q4_0" ]`. |
 | `mockEngine` | `false` | Scripted mock instead of the model (tests; no GPU, no download). |
@@ -90,9 +90,9 @@ services.strata = {
 
 ## Packages
 
-- `strata` — the server bundle: `strata-serve`, `strata-chat` and `strata-prefetch`
+- `strata`, the server bundle: `strata-serve`, `strata-chat` and `strata-prefetch`
   (the download/prepare tool, usable standalone; `strata-prefetch --help`).
-- `strata-engine` — the CUDA inference binary, built from source
+- `strata-engine`, the CUDA inference binary built from source
   (`strata-engine.override { cudaArch = "120"; }` for an RTX 50 card; default `89` = RTX 40).
 - The model weights are **not** packaged: they are downloaded at runtime into the
   service's state directory (the nix store would not survive a 70 GB model well).
@@ -105,14 +105,14 @@ services.strata = {
 new commit and an instruction to update the `llama-pinned` input.
 
 The flake input `strata` tracks upstream `main`. The lock file decides what you
-actually run — `nix flake lock --update-input strata` pulls new releases
-(and new engine features); audit what lands in it before doing so.
+actually run. `nix flake lock --update-input strata` pulls new releases
+(and new engine features). Read what lands in the lock before you run it.
 
 ## Testing
 
-- `nix flake check` — a serve smoke test (mock engine: HTTP endpoints without a GPU)
+- `nix flake check`: a serve smoke test (mock engine: HTTP endpoints without a GPU)
   and a NixOS VM test of the systemd service with the mock engine.
-- `nix build .#strata-engine` — the real compile (20-40 minutes, once, cached after).
+- `nix build .#strata-engine`: the real compile (20-40 minutes, once, cached after).
 
 ## Licenses
 

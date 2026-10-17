@@ -32,9 +32,8 @@ in
       default = 32768;
       description = ''
         Context window in tokens. From 64K on, the KV cache streams from RAM.
-        Past the model's trained 262144, strata-prefetch turns on yarn rope scaling
-        (factor = context / 262144, experimental upstream); pass `--rope-scaling`
-        through extraEngineArgs to override.
+        Past 262144 (the trained length) strata-prefetch turns yarn on by itself
+        and derives the factor; extraEngineArgs can override.
       '';
     };
 

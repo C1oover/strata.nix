@@ -1,5 +1,5 @@
 {
-  description = "Strata: run Qwen3.8-Flash-Next (125B MoE) locally on one NVIDIA GPU — NixOS package and service";
+  description = "Strata: run Qwen3.8-Flash-Next (125B MoE) locally on one NVIDIA GPU. NixOS package and service";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";

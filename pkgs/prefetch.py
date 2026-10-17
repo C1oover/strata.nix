@@ -290,8 +290,9 @@ def main() -> int:
     if low_ram == "on":
         args += ["--mmap-experts"]
     if a.context > 262144 and not any(x == "--rope-scaling" for x in a.extra_arg):
-        # past the model's trained 262144: yarn with a covering factor (final / trained),
-        # like upstream setup.py's resolve_rope; an explicit --rope-scaling extra arg wins
+        # over the trained 262144 the engine wants a scaling that covers it: yarn,
+        # factor = final / trained, like upstream setup does.
+        # An explicit --rope-scaling among the extra args takes over.
         args += ["--rope-scaling", "yarn", "--rope-scale", f"{a.context / 262144:g}"]
     args += a.extra_arg
 
