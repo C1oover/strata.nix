@@ -51,24 +51,39 @@ stdenvNoCC.mkDerivation {
     cp -r ${share} $out/share/strata
     chmod -R u+w $out/share/strata
     install -Dm644 ${./prefetch.py} $out/share/strata/prefetch.py
+
     makeWrapper ${py}/bin/python $out/bin/strata-serve \
+      --prefix PATH : "${lib.makeBinPath [ engine ]}" \
+      --set STRATA_SHARE "$out/share/strata" \
       --add-flags "$out/share/strata/serve/server.py"
+
     makeWrapper ${py}/bin/python $out/bin/strata-chat \
+      --prefix PATH : "${lib.makeBinPath [ engine ]}" \
+      --set STRATA_SHARE "$out/share/strata" \
       --add-flags "$out/share/strata/chat.py"
+
     makeWrapper ${py}/bin/python $out/bin/strata-prefetch \
-      --add-flags "$out/share/strata/prefetch.py" \
-      --set STRATA_SHARE "$out/share/strata"
+      --prefix PATH : "${lib.makeBinPath [ engine ]}" \
+      --set STRATA_SHARE "$out/share/strata" \
+      --add-flags "$out/share/strata/prefetch.py"
+
+    if [[ -f "$out/share/strata/strata.py" ]]; then
+      makeWrapper ${py}/bin/python $out/bin/strata-cli \
+        --prefix PATH : "${lib.makeBinPath [ engine ]}" \
+        --set STRATA_SHARE "$out/share/strata" \
+        --add-flags "$out/share/strata/strata.py"
+    fi
+
     runHook postInstall
   '';
 
   passthru = {
-    engine = engine;
-    inherit share py;
+    inherit engine share py;
     prefetchFlags = { };
   };
 
   meta = {
-    description = "Strata local inference server (OpenAI/Anthropic-compatible API for Qwen3.8-Flash-Next)";
+    description = "Strata local inference server (OpenAI/Anthropic-compatible API)";
     homepage = "https://github.com/Niko1221/Strata";
     license = lib.licenses.mit;
     platforms = [ "x86_64-linux" ];
