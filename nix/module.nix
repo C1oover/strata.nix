@@ -305,10 +305,12 @@ in
       after = [ "network-online.target" ];
       path = [ cfg.package ];
 
-      environment = lib.optionalAttrs (cfg.gpus != [ ]) {
-        CUDA_DEVICE_ORDER = "PCI_BUS_ID";
-        CUDA_VISIBLE_DEVICES = lib.concatStringsSep "," cfg.gpus;
-      };
+      environment = {
+          STRATA_PYTHON = "${cfg.package.passthru.py}/bin/python";
+        } // lib.optionalAttrs (cfg.gpus != [ ]) {
+          CUDA_DEVICE_ORDER = "PCI_BUS_ID";
+          CUDA_VISIBLE_DEVICES = lib.concatStringsSep "," cfg.gpus;
+        };
 
       preStart = lib.mkIf (cfg.prefetchOnStart && !cfg.mockEngine) (toString (
         pkgs.writeShellScript "strata-prestart" (''
