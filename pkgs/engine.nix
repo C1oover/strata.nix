@@ -11,7 +11,7 @@
   ggmlPin,
   pinChecked ? true,
   # Support Ampere (86) and Ada (89) by default, or override with e.g. "86"
-  cudaArch ? "86;89",
+  cudaArch ? "86",
   enableAvx512 ? false,
 }:
 
