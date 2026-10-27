@@ -473,13 +473,14 @@ def main() -> int:
     tokenizer_path: str | None = None
 
     # 2. Build or configure Pack vs direct GGUF mode
+    # 2. Build or configure Pack vs direct GGUF mode
     if mode == "pack":
         if shard1 is None and not a.pack_dir:
             fail("pack mode requires GGUF shards or --pack-dir")
         pack = Path(a.pack_dir) if a.pack_dir else (data / "packs" / tag)
         if not (pack / "native_experts.txt").exists() or not (pack / "tokenizer" / "vocab.json").exists():
             say(f"[strata-prefetch] building pack in {pack} (iq_pack.py) ...")
-            run_tool("iq_pack.py", "--gguf", shard1, "--out", pack)
+            run_tool("iq_pack.py", "--gguf", shard1, "--out", pack, "--compat-bf16")
             ok(f"pack built: {pack}")
         else:
             ok(f"pack already built: {pack}")
@@ -487,7 +488,7 @@ def main() -> int:
         if low_ram == "on":
             if not (pack / "experts.bin").exists():
                 say("[strata-prefetch] building experts.bin (low-RAM mmap mode) ...")
-                run_tool("iq_pack.py", "--gguf", shard1, "--out", pack, "--experts-bin")
+                run_tool("iq_pack.py", "--gguf", shard1, "--out", pack, "--compat-bf16", "--experts-bin")
             ok("low-RAM mode: mapping experts from experts.bin")
 
         args += ["--pack", str(pack)]
